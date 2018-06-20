@@ -3,12 +3,14 @@
 """
 Created on Mon May  7 18:24:30 2018
 
-@author: ray
+@author: ray and jacob 
 """
 
 import matplotlib.pyplot as plt
 #import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.colors
+import matplotlib.cm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np 
 
 
@@ -27,24 +29,43 @@ magicN = [2,8,20,28,50,82,126]
 # Z = np.arange( 0, 126 )
 # N = np.arange( 200 )
 
-cf_yields = np.zeros( ( 126, 200 ) )
+cf_yields = np.zeros( ( 118, 200 ) )
 
 cf_yields[:] = np.nan
 
-cf_yields[ Z_list - 1, N_list - 1 ] = cf_yield_list 
+cf_yields[ Z_list, N_list ] = cf_yield_list 
 
-print( Z_list - 1 ) 
+# print( Z_list - 1 ) 
 
-f = plt.figure( figsize = ( 8, 8 ) ) 
+f = plt.figure( figsize = ( 10, 10 ) ) 
 
 ax = plt.axes()
 
-ax.set_title( 'My Chart of Nuclides' )
-ax.set_xlabel( 'Z' )
-ax.set_ylabel( 'N' ) 
+ax.set_title( 'My Chart of Nuclides', fontsize = 20 )
+ax.set_ylabel( 'Z', fontsize = 18 )
+ax.set_xlabel( 'N', fontsize = 18 ) 
 
-ax.imshow( cf_yields.T[ :140, :90 ], origin = 'lower', aspect = 'auto' ) 
 
+
+masked_array = np.ma.array( cf_yields, mask=np.isnan( cf_yields ) )
+cmap = matplotlib.cm.jet
+cmap.set_bad('white',1.)
+
+im = ax.imshow( cf_yields, origin = 'lower', aspect = 'auto',
+                cmap = cmap, 
+                norm = matplotlib.colors.LogNorm( vmin = np.nanmin( cf_yields ),
+                                                  vmax = np.nanmax( cf_yields ) ) ) 
+
+divider = make_axes_locatable( ax )
+cax = divider.append_axes("right", size="5%", pad=0.05)
+cbar = f.colorbar(im, cax=cax)
+cbar.set_label( 'Cf yields', rotation = 270 ) 
+
+
+ax.set_xlim( ( 25, 120 ) )
+ax.set_ylim( ( 20, 75 ) ) 
+
+# ax.set_xticklabels( np.array( ax.get_xticklabels(), dtype = int ) + 1 ) 
 
 for i in range( 3, 6 ) :
     ax.axhline( magicZ[i], linewidth=5, color='k', alpha = 0.2 )
