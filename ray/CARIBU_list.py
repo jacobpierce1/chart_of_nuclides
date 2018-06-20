@@ -65,7 +65,6 @@ cbar.set_label( 'Cf yields', rotation = 270 )
 ax.set_xlim( ( 25, 120 ) )
 ax.set_ylim( ( 20, 75 ) ) 
 
-# ax.set_xticklabels( np.array( ax.get_xticklabels(), dtype = int ) + 1 ) 
 
 for i in range( 3, 6 ) :
     ax.axhline( magicZ[i], linewidth=5, color='k', alpha = 0.2 )
