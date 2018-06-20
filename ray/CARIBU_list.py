@@ -9,77 +9,51 @@ Created on Mon May  7 18:24:30 2018
 import matplotlib.pyplot as plt
 #import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import griddata
-import matplotlib.patches as patches
-from numpy import *
+import numpy as np 
 
-#############################################
-''' CARIBU '''
 
-CARIBU_file = '/Users/ray/UManitoba/ANL/CPT/PTable and Nuclear Chart/CARIBU_list_2.txt'
+CARIBU_file = './CARIBU_list_2.txt'
 
-CARIBU_Z = genfromtxt(CARIBU_file, usecols = 0)
-CARIBU_A = genfromtxt(CARIBU_file, usecols = 1)
-CARIBU_N = genfromtxt(CARIBU_file, usecols = 2)
-CARIBU_Y = genfromtxt(CARIBU_file, usecols = 3)
-CARIBU_Yerr = genfromtxt(CARIBU_file, usecols = 4)
+Z_list, N_list, cf_yield_list = np.genfromtxt( CARIBU_file, skip_header = 1,
+                                               usecols = [ 0, 2, 3 ], unpack = 1 )
 
-#############################################
-x = CARIBU_N 
-y = CARIBU_Z 
-c = CARIBU_Y 
-#############################################
+Z_list = Z_list.astype( int )
+N_list = N_list.astype( int ) 
 
 magicZ = [2,8,20,28,50,82,126]
 magicN = [2,8,20,28,50,82,126]
 
-#############################################
-#############################################
 
-X,Y  = meshgrid(x,y)
-#C = vstack((c, c)).T
-C = outer(c.T, c)
+# Z = np.arange( 0, 126 )
+# N = np.arange( 200 )
 
-#combined = vstack((x, y)).T
-#C = vstack((c, c)).T
+cf_yields = np.zeros( ( 126, 200 ) )
 
-#c = griddata(x,y,z,xmesh,ymesh, interp='linear')
+cf_yields[:] = np.nan
 
-#N = sqrt(len(x)) # Only if squared, adjust accordingly
-#x = x.reshape((N, N))
-#y = y.reshape((N, N))
-#c = c.reshape((N, N))
-#pcolormesh(x, y, c)
+cf_yields[ Z_list - 1, N_list - 1 ] = cf_yield_list 
 
+print( Z_list - 1 ) 
 
+f = plt.figure( figsize = ( 8, 8 ) ) 
 
-f = plt.figure()#figsize = (6,10))
-ax = f.add_subplot(111, aspect = 'equal')
+ax = plt.axes()
 
+ax.set_title( 'My Chart of Nuclides' )
+ax.set_xlabel( 'Z' )
+ax.set_ylabel( 'N' ) 
 
-plt.pcolormesh(X,Y,C,cmap = 'viridis') 
-#plt.pcolor(X,Y,C,cmap = 'viridis') 
-
-#plt.pcolormesh(x, y, c, cmap = 'viridis')
-
-#plt.pcolormesh(combined,C,cmap = 'viridis') 
-
-plt.colorbar()
+ax.imshow( cf_yields.T[ :140, :90 ], origin = 'lower', aspect = 'auto' ) 
 
 
-#ax.plot(CARIBU_N, CARIBU_Z, marker='s', markersize = 10, linestyle = None, linewidth = 0)#, color='blue')    
+for i in range( 3, 6 ) :
+    ax.axhline( magicZ[i], linewidth=5, color='k', alpha = 0.2 )
 
-[ax.axhline(_y, linewidth=5, color='k', alpha = 0.2) for _y in magicZ[3:6]]
-[ax.axvline(_x, linewidth=5, color='k', alpha = 0.2) for _x in magicN[4:7]]
+for i in range( 4, 7 ) :
+    ax.axvline( magicN[i], linewidth=5, color='k', alpha = 0.2 )  
 
 
-plt.xlabel('Neutrons (N)')
-plt.ylabel('Protons (Z)')
+plt.show() 
 
-plt.xlim(25,130)
-plt.ylim(20,80)
-
-plt.grid()
-plt.show()
 
 
