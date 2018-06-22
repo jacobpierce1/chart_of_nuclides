@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import numpy as np 
+import numpy as np
+from matplotlib.ticker import LogLocator
+
  # import seaborn as sns
 
 print( matplotlib.__version__ )
@@ -37,7 +39,7 @@ cf_yields[:] = np.nan
 
 cf_yields[ Z_list, N_list ] = cf_yield_list
 tmp = np.copy( cf_yields )
-tmp[ tmp ==0 ] = np.nan 
+# tmp[ tmp ==0 ] = np.nan 
 
 # print( Z_list - 1 ) 
 
@@ -50,11 +52,14 @@ ax.set_ylabel( 'Z', fontsize = 18 )
 ax.set_xlabel( 'N', fontsize = 18 ) 
 
 print( np.nanmin( tmp ) ) 
+print( np.nanmax( tmp ) ) 
 
-
-masked_array = np.ma.array( cf_yields, mask=np.isnan( cf_yields ) )
+# masked_array = np.ma.array( cf_yields, mask=np.isnan( cf_yields ) )
 cmap = matplotlib.cm.jet
 cmap.set_bad( 'white', 1.0 )
+
+# masked_array[ np.isnan( cf_yields ) ] = 0 
+# masked_array = np.ones( ( 10, 10 ) ) 
 
 # im = ax.imshow( masked_array, origin = 'lower', aspect = 'auto',
 #                 cmap = cmap, 
@@ -62,17 +67,27 @@ cmap.set_bad( 'white', 1.0 )
 #                                                   vmax = np.nanmax( tmp ) ) )
 
 
-im = ax.imshow( masked_array, origin = 'lower', aspect = 'auto',
-                cmap = cmap, 
-                norm = matplotlib.colors.LogNorm( vmin = np.nanmin( tmp ),
-                                                  vmax = np.nanmax( tmp ) ) )
+im = ax.imshow( tmp, origin = 'lower', aspect = 'auto',
+                cmap = cmap,
+                norm = matplotlib.colors.LogNorm(), vmin = 1e-6, vmax = 0.5 )
+                # norm = matplotlib.colors.LogNorm( vmin = np.nanmin( tmp ),
+                #                                  vmax = np.nanmax( tmp ) ) )
 # ticks = None ) 
 
 divider = make_axes_locatable( ax )
 cax = divider.append_axes("right", size="5%", pad=0.2)
-cbar = f.colorbar(im, cax=cax, format='%.2f')
+cbar = f.colorbar(im, cax=cax, format='%1.0e')
 cbar.set_label( '$^{252}$Cf yields (per 100 fissions)', rotation = 270 ) 
 
+
+# this is a bug in matplotlib. this resolves.
+# cbar.ax.set_ticklabel_format( 'sci' ) 
+cbar.set_ticks(LogLocator())  # defaults are more or less what one wants (otherwise adapt the parameters)
+
+# cbar.ax.yaxis.set_major_locator(LogLocator())  # <- Why? See above.
+# cbar.set_ticks(cbar.ax.yaxis.get_major_locator().tick_values( np.nanmin(tmp), np.nanmax(tmp)))
+
+# cbar.ax.minorticks_off()
 
 ax.set_xlim( ( 25, 120 ) )
 ax.set_ylim( ( 20, 75 ) ) 
